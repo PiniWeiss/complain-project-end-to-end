@@ -1,32 +1,29 @@
 import express from "express";
 import dotenv from "dotenv";
-import mogoose from "mongoose";
-import mongoose from "mongoose";
-import authRouter from "./routes/auth.js"
-import complaintsRouter from './routes/complaints.js'
-
+import complaintsRouter from "./routes/complaints.js";
+import authRouter from "./routes/auth.js";
+import { connect } from "./db/conect.js";
+import cors from "cors";
 const app = express();
 dotenv.config();
+app.use(cors());
+app.use(express.json());
 
-const  connect = async ()=> {try {
-  await mongoose.connect(process.env.MONGO);
-  
-} catch (error) {
-  throw error
-}}
+app.use("/api", complaintsRouter);
+app.use("/api", authRouter);
 
-mogoose.connection.on("connected", ()=> {
-    console.log("mongoDB connecded!");
-})
-mogoose.connection.on("disconnected", ()=> {
-    console.log("mongoDB disconnecded!");
-})
-
-app.use(express.json())
-
-app.use("/api", complaintsRouter)
+app.use((err, req, res, next) => {
+  const errorStatus = err.status || 500;
+  const errorMessage = err.message || "Somthing went wrong!";
+  return res.status(errorStatus).json({
+    success: false,
+    status: errorStatus,
+    message: errorMessage,
+    stack: err.stack,
+  });
+});
 
 app.listen(8000, () => {
-    connect()
+  connect();
   console.log("Running on port 8000...");
 });

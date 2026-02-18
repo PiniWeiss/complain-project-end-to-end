@@ -1,9 +1,8 @@
 import express from "express";
+import { loginAdmin } from "../controllers/auth.js";
 
 const router = express.Router();
 
-router.post("/admin/login", (req,res)=> {
-    res.send("This is auth endpoint")
-});
+router.post("/admin/login",loginAdmin);
 
 export default router;
